@@ -1,0 +1,59 @@
+# Base de datos
+*.sqlite3
+db.sqlite3
+
+# Entorno virtual
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Archivos de Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Configuraciones sensibles
+.env
+local_settings.py
+
+# Archivos de Django
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+media/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Sistema operativo
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Archivos temporales
+*.tmp
+*.bak
+*.swp
+
+# Migraciones (opcional - descomenta si no quieres subirlas)
+# */migrations/*
+# !*/migrations/__init__.py
+
+# Archivos estáticos recolectados
+staticfiles/
+static_root/
+
+# Archivos de medios
+media_root/

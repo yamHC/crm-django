@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRM - Lista de Clientes</title>
+    <!-- Bootstrap para que se vea bonito -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Iconos para que se vea más profesional -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Estilos simples para que se vea como un CRM */
+        body { 
+            background-color: #f8f9fa; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .header-crm { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+            color: white; 
+            padding: 30px 0; 
+            margin-bottom: 30px; 
+        }
+        .filtros-box { 
+            background: white; 
+            padding: 25px; 
+            border-radius: 10px; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
+            margin-bottom: 25px; 
+        }
+        .tabla-clientes { 
+            background: white; 
+            border-radius: 10px; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
+        }
+        .badge-interaccion { 
+            font-size: 0.8em; 
+        }
+        .cliente-row:hover { 
+            background-color: #f1f3f4; 
+        }
+    </style>
+</head>
+<body>
+    <!-- HEADER DEL CRM -->
+    <div class="header-crm">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-8">
+                    <h1><i class="fas fa-users me-3"></i>Sistema CRM - Gestión de Clientes</h1>
+                    <p class="mb-0">Administra y visualiza toda la información de tus clientes</p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <div class="stats-info">
+                        <h3>{{ clientes|length }}</h3>
+                        <small>Clientes mostrados</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- SECCIÓN DE FILTROS Y BÚSQUEDA -->
+        <div class="filtros-box">
+            <h5><i class="fas fa-filter me-2"></i>Filtros y Búsqueda</h5>
+            <hr>
+            <!-- Formulario de filtros - Envía los datos por GET -->
+            <form method="get" class="row g-3">
+                
+                <!-- FILTRO 1: Buscar por nombre y compañia -->
+                <div class="col-md-4">
+                    <label class="form-label"><i class="fas fa-search me-1"></i>Buscar por nombre o compañía:</label>
+                    <input type="text" 
+                           name="buscar" 
+                           class="form-control" 
+                           value="{{ buscar }}" 
+                           placeholder="Escribe un nombre...">
+                </div>
+                
+                <!-- FILTRO 2: Filtrar por cumpleaños -->
+                <div class="col-md-3">
+                    <label class="form-label"><i class="fas fa-birthday-cake me-1"></i>Filtrar cumpleaños:</label>
+                    <select name="cumpleanos" class="form-select">
+                        <option value="">Todos los cumpleaños</option>
+                        <option value="esta_semana" {% if cumpleanos_filtro == 'esta_semana' %}selected{% endif %}>
+                            Esta semana
+                        </option>
+                        <option value="este_mes" {% if cumpleanos_filtro == 'este_mes' %}selected{% endif %}>
+                            Este mes
+                        </option>
+                    </select>
+                </div>
+                
+                <!-- FILTRO 3: Ordenar resultados -->
+                <div class="col-md-3">
+                    <label class="form-label"><i class="fas fa-sort me-1"></i>Ordenar por:</label>
+                    <select name="ordenar" class="form-select">
+                        <option value="nombre" {% if ordenar == 'nombre' %}selected{% endif %}>
+                            Nombre A-Z
+                        </option>
+                        <option value="compania" {% if ordenar == 'compania' %}selected{% endif %}>
+                            Compañía A-Z
+                        </option>
+                        <option value="cumpleanos" {% if ordenar == 'cumpleanos' %}selected{% endif %}>
+                            Fecha de cumpleaños
+                        </option>
+                        <option value="ultima_interaccion" {% if ordenar == 'ultima_interaccion' %}selected{% endif %}>
+                            Última interacción
+                        </option>
+                    </select>
+                </div>
+                
+                <!-- BOTONES DE ACCIÓN -->
+                <div class="col-md-2">
+                    <label class="form-label">&nbsp;</label>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search me-1"></i>Buscar
+                        </button>
+                        <a href="?" class="btn btn-outline-secondary btn-sm">
+                            <i class="fas fa-times me-1"></i>Limpiar
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- TABLA DE CLIENTES -->
+        <div class="tabla-clientes">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-list me-2"></i>
+                        Lista de Clientes 
+                        <span class="badge bg-light text-dark ms-2">{{ clientes|length }} resultados</span>
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    <!-- Si hay clientes para mostrar -->
+                    {% if clientes %}
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th><i class="fas fa-user me-1"></i>Nombre Completo</th>
+                                    <th><i class="fas fa-building me-1"></i>Compañía</th>
+                                    <th><i class="fas fa-birthday-cake me-1"></i>Cumpleaños</th>
+                                    <th><i class="fas fa-comments me-1"></i>Última Interacción</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Loop: Para cada cliente en la lista -->
+                                {% for cliente in clientes %}
+                                <tr class="cliente-row">
+                                    <!-- COLUMNA 1: Nombre completo -->
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-inicial me-3">
+                                                <span class="badge bg-primary rounded-circle p-2">
+                                                    {{ cliente.nombre|first }}
+                                                </span>
+                                            </div>
+                                            <div>
+                                                <strong>{{ cliente.nombre }}</strong>
+                                                <br>
+                                                <small class="text-muted">
+                                                    Rep: {{ cliente.representante.nombre }}
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    
+                                    <!-- COLUMNA 2: Compañía -->
+                                    <td>
+                                        <i class="fas fa-building text-muted me-1"></i>
+                                        {{ cliente.compania.nombre }}
+                                    </td>
+                                    
+                                    <!-- COLUMNA 3: Cumpleaños (formato "February 5") -->
+                                    <td>
+                                        <i class="fas fa-calendar text-muted me-1"></i>
+                                        {{ cliente.cumpleanos_bonito }}
+                                    </td>
+                                    
+                                    <!-- COLUMNA 4: Última interacción -->
+                                    <td>
+                                        {% if cliente.ultima_interaccion %}
+                                            <!-- Si tiene interacciones -->
+                                            <div>
+                                                <span class="badge badge-interaccion 
+                                                    {% if cliente.tipo_interaccion == 'Llamada' %}bg-success
+                                                    {% elif cliente.tipo_interaccion == 'Correo Electronico' %}bg-primary
+                                                    {% elif cliente.tipo_interaccion == 'SMS' %}bg-info
+                                                    {% elif cliente.tipo_interaccion == 'WhatsApp' %}bg-success
+                                                    {% elif cliente.tipo_interaccion == 'Facebook' %}bg-primary
+                                                    {% else %}bg-secondary{% endif %}">
+                                                    {{ cliente.tiempo }}
+                                                </span>
+                                                <br>
+                                                <small class="text-muted">
+                                                    ({{ cliente.tipo_interaccion }})
+                                                </small>
+                                            </div>
+                                        {% else %}
+                                            <!-- Si no tiene interacciones -->
+                                            <span class="badge bg-secondary badge-interaccion">
+                                                Sin interacciones
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <!-- Si no hay clientes que mostrar -->
+                    <div class="text-center py-5">
+                        <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                        <h5>No se encontraron clientes</h5>
+                        <p class="text-muted">
+                            Intenta cambiar los filtros de búsqueda o 
+                            <a href="?" class="text-decoration-none">ver todos los clientes</a>
+                        </p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- PAGINACIÓN (si hay muchos resultados) -->
+        {% if is_paginated %}
+        <div class="d-flex justify-content-center mt-4">
+            <nav>
+                <ul class="pagination">
+                    <!-- Página anterior -->
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}&buscar={{ buscar }}&cumpleanos={{ cumpleanos_filtro }}&ordenar={{ ordenar }}">
+                            <i class="fas fa-chevron-left"></i> Anterior
+                        </a>
+                    </li>
+                    {% endif %}
+                    
+                    <!-- Número de página actual -->
+                    <li class="page-item active">
+                        <span class="page-link">
+                            Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+                        </span>
+                    </li>
+                    
+                    <!-- Página siguiente -->
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}&buscar={{ buscar }}&cumpleanos={{ cumpleanos_filtro }}&ordenar={{ ordenar }}">
+                            Siguiente <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
+
+    <!-- JavaScript de Bootstrap -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
